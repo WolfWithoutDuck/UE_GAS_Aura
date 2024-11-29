@@ -29,11 +29,18 @@ struct FDamageEffectParams
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<UAbilitySystemComponent> TargetAbilitySystemComponent;
 
+	//当前造成的直击伤害
 	UPROPERTY(BlueprintReadWrite)
-	float BaseDamage = 0.f;
+	TMap<FGameplayTag, float> InflictDamage;
 
-	UPROPERTY(BlueprintReadWrite)
-	TMap<FGameplayTag, float> BaseDamage2;
+	//当前造成的点燃伤害
+	TMap<FGameplayTag, float> IgniteDamage;
+
+	//点燃几率
+	float IgniteChance = 0.f;
+
+	//点燃持续时间
+	float IgniteDuration = 4.f;
 
 	UPROPERTY(BlueprintReadWrite)
 	float AbilityLevel = 1.f;
@@ -109,6 +116,11 @@ public:
 	float GetRadialDamageOuterRadius() const { return RadialDamageOuterRadius; }
 	FVector GetRadialDamageOrigin() const { return RadialDamageOrigin; }
 
+
+	bool GetIsSuccessfulIgnite() const { return bIsSuccessfulIgnite; }
+	float GetIgniteDamage() const { return IgniteDamage; }
+	float GetIgniteDuration() const { return IgniteDuration; }
+
 	void SetCriticalHit(bool IsCriticalHit) { bIsCriticalHit = IsCriticalHit; }
 	void SetIsBlockedHit(bool IsBlockedHit) { bIsBlockedHit = IsBlockedHit; }
 	void SetIsSuccessfulDebuff(bool bInIsDebuff) { bIsSuccessfulDebuff = bInIsDebuff; }
@@ -122,7 +134,10 @@ public:
 	void SetRadialDamageInnerRadius(const float InRadialDamageInnerRadius) { RadialDamageInnerRadius = InRadialDamageInnerRadius; }
 	void SetRadialDamageOuterRadius(const float InRadialDamageOuterRadius) { RadialDamageOuterRadius = InRadialDamageOuterRadius; }
 	void SetRadialDamageOrigin(const FVector& InDamageOrigin) { RadialDamageOrigin = InDamageOrigin; }
-
+	
+	void SetIsSuccessfulIgnite(const bool bInIsSuccessfulIgnite) { bIsSuccessfulIgnite = bInIsSuccessfulIgnite; }
+	void SetIgniteDamage(const float InIgniteDamage) { IgniteDamage = InIgniteDamage; }
+	void SetIgniteDuration(const float InIgniteDuration) { IgniteDuration = InIgniteDuration;}
 
 	/** Returns the actual struct used for serialization, subclasses must override this! */
 	virtual UScriptStruct* GetScriptStruct() const
@@ -184,6 +199,16 @@ protected:
 
 	UPROPERTY()
 	FVector RadialDamageOrigin = FVector::ZeroVector;
+
+	//是否造成点燃
+	UPROPERTY()
+	bool bIsSuccessfulIgnite = false;
+
+	UPROPERTY()
+	float IgniteDamage = 0.f;
+
+	UPROPERTY()
+	float IgniteDuration = 0.f;
 };
 
 

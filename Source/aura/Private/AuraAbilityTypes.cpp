@@ -85,10 +85,22 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 				RepBits |= 1 << 19;
 			}
 		}
+		if (bIsSuccessfulIgnite)
+		{
+			RepBits |= 1 << 20;
+		}
+		if (IgniteDamage > 0.f)
+		{
+			RepBits |= 1 << 21;
+		}
+		if (IgniteDuration > 0.f)
+		{
+			RepBits |= 1 << 22;
+		}
 	}
 
 
-	Ar.SerializeBits(&RepBits, 19);
+	Ar.SerializeBits(&RepBits, 22);
 
 	if (RepBits & (1 << 0))
 	{
@@ -192,7 +204,18 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 			RadialDamageOrigin.NetSerialize(Ar, Map, bOutSuccess);
 		}
 	}
-
+	if (RepBits & (1 << 20))
+	{
+		Ar << bIsSuccessfulIgnite;
+	}
+	if (RepBits & (1 << 21))
+	{
+		Ar << IgniteDamage;
+	}
+	if (RepBits & (1 << 22))
+	{
+		Ar << IgniteDuration;
+	}
 
 	if (Ar.IsLoading())
 	{
