@@ -134,10 +134,10 @@ public:
 	void SetRadialDamageInnerRadius(const float InRadialDamageInnerRadius) { RadialDamageInnerRadius = InRadialDamageInnerRadius; }
 	void SetRadialDamageOuterRadius(const float InRadialDamageOuterRadius) { RadialDamageOuterRadius = InRadialDamageOuterRadius; }
 	void SetRadialDamageOrigin(const FVector& InDamageOrigin) { RadialDamageOrigin = InDamageOrigin; }
-	
+
 	void SetIsSuccessfulIgnite(const bool bInIsSuccessfulIgnite) { bIsSuccessfulIgnite = bInIsSuccessfulIgnite; }
 	void SetIgniteDamage(const float InIgniteDamage) { IgniteDamage = InIgniteDamage; }
-	void SetIgniteDuration(const float InIgniteDuration) { IgniteDuration = InIgniteDuration;}
+	void SetIgniteDuration(const float InIgniteDuration) { IgniteDuration = InIgniteDuration; }
 
 	/** Returns the actual struct used for serialization, subclasses must override this! */
 	virtual UScriptStruct* GetScriptStruct() const
@@ -160,6 +160,12 @@ public:
 
 	/** Custom serialization, subclasses must override this */
 	virtual bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
+
+	void SetIgniteStackInfo(float IgniteDamage, float IgniteEndTime);
+	TMap<float, float>& GetIgniteCauseDamage();
+	void CleanUpExpiredEffects(float CurrentTime);
+	float GetTotalIgniteDamage(float CurrentTime, int32 IgniteStack);
+	void InitIgniteStackInfo(const TMap<float, float>& IgniteDamageStack);
 
 protected:
 	UPROPERTY()
@@ -209,6 +215,9 @@ protected:
 
 	UPROPERTY()
 	float IgniteDuration = 0.f;
+
+	UPROPERTY()
+	TMap<float, float> IgniteDamageToEndTime;
 };
 
 

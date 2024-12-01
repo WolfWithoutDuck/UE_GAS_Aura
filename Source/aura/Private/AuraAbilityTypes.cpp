@@ -1,5 +1,7 @@
 ﻿#include "AuraAbilityTypes.h"
 
+#include "aura/AuraLogChannels.h"
+
 bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
 	uint32 RepBits = 0;
@@ -225,4 +227,65 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 	bOutSuccess = true;
 
 	return true;
+}
+
+void FAuraGameplayEffectContext::SetIgniteStackInfo(float InIgniteDamage, float IgniteEndTime)
+{
+	IgniteDamageToEndTime.Add(IgniteEndTime, InIgniteDamage);
+}
+
+TMap<float, float>& FAuraGameplayEffectContext::GetIgniteCauseDamage()
+{
+	return IgniteDamageToEndTime;
+}
+
+void FAuraGameplayEffectContext::CleanUpExpiredEffects(float CurrentTime)
+{
+	for (auto It = IgniteDamageToEndTime.CreateIterator(); It; ++It)
+	{
+		if (It.Key() < CurrentTime) // 检查结束时间
+		{
+			It.RemoveCurrent(); // 移除过期的点燃伤害
+		}
+	}
+}
+
+float FAuraGameplayEffectContext::GetTotalIgniteDamage(float CurrentTime, int32 IgniteStack)
+{
+	CleanUpExpiredEffects(CurrentTime); // 清理过期的效果
+	TArray<float> ValidDamages;
+
+	UE_LOG(LogAura, Error, TEXT("造成点燃伤害 -->点燃堆栈->[%d] "), IgniteDamageToEndTime.Num());
+	// 收集有效的伤害
+	for (const auto& Pair : IgniteDamageToEndTime)
+	{
+		ValidDamages.Add(Pair.Value);
+	}
+
+	// 如果没有有效的伤害，返回 0
+	if (ValidDamages.Num() == 0)
+	{
+		return 0.f;
+	}
+
+	// 排序有效伤害
+	ValidDamages.Sort([](const float& A, const float& B)
+	{
+		return A > B; // 降序排序
+	});
+
+	// 计算总伤害，最多累加 IgniteStack 次
+	float TotalDamage = 0.f;
+	for (int32 i = 0; i < FMath::Min(IgniteStack, ValidDamages.Num()); i++)
+	{
+		TotalDamage += ValidDamages[i]; // 累加最高的伤害
+	}
+
+	return TotalDamage; // 返回总伤害
+}
+
+void FAuraGameplayEffectContext::InitIgniteStackInfo(const TMap<float, float>& IgniteDamageStack)
+{
+	IgniteDamageToEndTime.Empty();
+	IgniteDamageToEndTime = IgniteDamageStack;
 }
