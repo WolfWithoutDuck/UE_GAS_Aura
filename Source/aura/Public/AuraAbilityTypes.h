@@ -42,6 +42,9 @@ struct FDamageEffectParams
 	//点燃持续时间
 	float IgniteDuration = 4.f;
 
+	//点燃周期
+	float IgnitePeriod = 1.f;
+
 	UPROPERTY(BlueprintReadWrite)
 	float AbilityLevel = 1.f;
 
@@ -120,6 +123,7 @@ public:
 	bool GetIsSuccessfulIgnite() const { return bIsSuccessfulIgnite; }
 	float GetIgniteDamage() const { return IgniteDamage; }
 	float GetIgniteDuration() const { return IgniteDuration; }
+	float GetIgnitePeriod() const { return IgnitePeriod; }
 
 	void SetCriticalHit(bool IsCriticalHit) { bIsCriticalHit = IsCriticalHit; }
 	void SetIsBlockedHit(bool IsBlockedHit) { bIsBlockedHit = IsBlockedHit; }
@@ -138,6 +142,7 @@ public:
 	void SetIsSuccessfulIgnite(const bool bInIsSuccessfulIgnite) { bIsSuccessfulIgnite = bInIsSuccessfulIgnite; }
 	void SetIgniteDamage(const float InIgniteDamage) { IgniteDamage = InIgniteDamage; }
 	void SetIgniteDuration(const float InIgniteDuration) { IgniteDuration = InIgniteDuration; }
+	void SetIgnitePeriod(const float InIgnitePeriod) { IgnitePeriod = InIgnitePeriod; }
 
 	/** Returns the actual struct used for serialization, subclasses must override this! */
 	virtual UScriptStruct* GetScriptStruct() const
@@ -215,6 +220,9 @@ protected:
 
 	UPROPERTY()
 	float IgniteDuration = 0.f;
+
+	UPROPERTY()
+	float IgnitePeriod = 1.f;
 
 	UPROPERTY()
 	TMap<float, float> IgniteDamageToEndTime;

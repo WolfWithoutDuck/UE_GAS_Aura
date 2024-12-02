@@ -99,10 +99,14 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 		{
 			RepBits |= 1 << 22;
 		}
+		if (!FMath::IsNearlyZero(IgnitePeriod - 1.f))
+		{
+			RepBits |= 1 << 23;
+		}
 	}
 
 
-	Ar.SerializeBits(&RepBits, 22);
+	Ar.SerializeBits(&RepBits, 23);
 
 	if (RepBits & (1 << 0))
 	{
@@ -218,6 +222,11 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 	{
 		Ar << IgniteDuration;
 	}
+	if (RepBits & (1 << 23))
+	{
+		Ar << IgnitePeriod;
+	}
+
 
 	if (Ar.IsLoading())
 	{
@@ -255,7 +264,7 @@ float FAuraGameplayEffectContext::GetTotalIgniteDamage(float CurrentTime, int32 
 	CleanUpExpiredEffects(CurrentTime); // 清理过期的效果
 	TArray<float> ValidDamages;
 
-	UE_LOG(LogAura, Error, TEXT("造成点燃伤害 -->点燃堆栈->[%d] "), IgniteDamageToEndTime.Num());
+	UE_LOG(LogAura, Warning, TEXT("造成点燃伤害 -->点燃堆栈->[%d] "), IgniteDamageToEndTime.Num());
 	// 收集有效的伤害
 	for (const auto& Pair : IgniteDamageToEndTime)
 	{
