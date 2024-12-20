@@ -139,10 +139,21 @@ public:
 	void SetRadialDamageOuterRadius(const float InRadialDamageOuterRadius) { RadialDamageOuterRadius = InRadialDamageOuterRadius; }
 	void SetRadialDamageOrigin(const FVector& InDamageOrigin) { RadialDamageOrigin = InDamageOrigin; }
 
+	//点燃
 	void SetIsSuccessfulIgnite(const bool bInIsSuccessfulIgnite) { bIsSuccessfulIgnite = bInIsSuccessfulIgnite; }
 	void SetIgniteDamage(const float InIgniteDamage) { IgniteDamage = InIgniteDamage; }
 	void SetIgniteDuration(const float InIgniteDuration) { IgniteDuration = InIgniteDuration; }
 	void SetIgnitePeriod(const float InIgnitePeriod) { IgnitePeriod = InIgnitePeriod; }
+
+	//感电
+	void SetIsSuccessfulShock(const bool bInIsSuccessfulShock) { bIsSuccessfulShock = bInIsSuccessfulShock; }
+	void SetShockEffect(const float InShockEffect) { ShockEffect = InShockEffect; }
+	void SetShockDuration(const float InShockDuration) { ShockDuration = InShockDuration; }
+
+	bool GetIsSuccessfulShock() const { return bIsSuccessfulShock; }
+	float GetShockEffect() const { return ShockEffect; }
+	float GetShockDuration() const { return ShockDuration; }
+
 
 	/** Returns the actual struct used for serialization, subclasses must override this! */
 	virtual UScriptStruct* GetScriptStruct() const
@@ -226,6 +237,22 @@ protected:
 
 	UPROPERTY()
 	TMap<float, float> IgniteDamageToEndTime;
+
+	//感电相关
+	//是否感电
+	UPROPERTY()
+	bool bIsSuccessfulShock = false;
+
+	//感电层数
+	UPROPERTY()
+	float ShockEffect = 0.f;
+
+	//感电持续时间
+	UPROPERTY()
+	float ShockDuration = 0.f;
+
+	UPROPERTY()
+	TMap<float, float> ShockEffectToEndTime;
 };
 
 
