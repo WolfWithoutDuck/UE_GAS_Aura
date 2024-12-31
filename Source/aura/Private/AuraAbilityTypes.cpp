@@ -264,7 +264,7 @@ float FAuraGameplayEffectContext::GetTotalIgniteDamage(float CurrentTime, int32 
 	CleanUpExpiredEffects(CurrentTime); // 清理过期的效果
 	TArray<float> ValidDamages;
 
-	UE_LOG(LogAura, Warning, TEXT("造成点燃伤害 -->点燃堆栈->[%d] "), IgniteDamageToEndTime.Num());
+	// UE_LOG(LogAura, Warning, TEXT("造成点燃伤害 -->点燃堆栈->[%d] "), IgniteDamageToEndTime.Num());
 	// 收集有效的伤害
 	for (const auto& Pair : IgniteDamageToEndTime)
 	{
@@ -297,4 +297,157 @@ void FAuraGameplayEffectContext::InitIgniteStackInfo(const TMap<float, float>& I
 {
 	IgniteDamageToEndTime.Empty();
 	IgniteDamageToEndTime = IgniteDamageStack;
+}
+
+
+bool FDebuffGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
+{
+	uint32 RepBits = 0;
+	if (Ar.IsSaving())
+	{
+		if (bReplicateInstigator && Instigator.IsValid())
+		{
+			RepBits |= 1 << 0;
+		}
+		if (bReplicateEffectCauser && EffectCauser.IsValid())
+		{
+			RepBits |= 1 << 1;
+		}
+		if (AbilityCDO.IsValid())
+		{
+			RepBits |= 1 << 2;
+		}
+		if (bReplicateSourceObject && SourceObject.IsValid())
+		{
+			RepBits |= 1 << 3;
+		}
+		if (Actors.Num() > 0)
+		{
+			RepBits |= 1 << 4;
+		}
+		if (HitResult.IsValid())
+		{
+			RepBits |= 1 << 5;
+		}
+		if (bHasWorldOrigin)
+		{
+			RepBits |= 1 << 6;
+		}
+	}
+
+	Ar.SerializeBits(&RepBits, 6);
+
+	if (RepBits & (1 << 0))
+	{
+		Ar << Instigator;
+	}
+	if (RepBits & (1 << 1))
+	{
+		Ar << EffectCauser;
+	}
+	if (RepBits & (1 << 2))
+	{
+		Ar << AbilityCDO;
+	}
+	if (RepBits & (1 << 3))
+	{
+		Ar << SourceObject;
+	}
+	if (RepBits & (1 << 4))
+	{
+		SafeNetSerializeTArray_Default<31>(Ar, Actors);
+	}
+	if (RepBits & (1 << 5))
+	{
+		if (Ar.IsLoading())
+		{
+			if (!HitResult.IsValid())
+			{
+				HitResult = TSharedPtr<FHitResult>(new FHitResult());
+			}
+		}
+		HitResult->NetSerialize(Ar, Map, bOutSuccess);
+	}
+	if (RepBits & (1 << 6))
+	{
+		Ar << WorldOrigin;
+		bHasWorldOrigin = true;
+	}
+	else
+	{
+		bHasWorldOrigin = false;
+	}
+
+
+	if (Ar.IsLoading())
+	{
+		AddInstigator(Instigator.Get(), EffectCauser.Get()); // Just to initialize InstigatorAbilitySystemComponent
+	}
+
+	bOutSuccess = true;
+
+	return true;
+}
+
+void FDebuffGameplayEffectContext::InitDebuffEffectStack(const TMap<float, float>& DebuffEffectStack)
+{
+	DebuffEffectStackToEndTime.Empty();
+	DebuffEffectStackToEndTime = DebuffEffectStack;
+}
+
+void FDebuffGameplayEffectContext::CleanUpExpiredEffects(const float CurrentTime)
+{
+	for (auto It = DebuffEffectStackToEndTime.CreateIterator(); It; ++It)
+	{
+		// 检查结束时间
+		if (It.Key() < CurrentTime)
+		{
+			// 移除过期的点燃伤害
+			It.RemoveCurrent();
+		}
+	}
+}
+
+void FDebuffGameplayEffectContext::SetDebuffEffectStackInfo(float InDebuffEffect, float InEffectEndTime)
+{
+	DebuffEffectStackToEndTime.Add(InDebuffEffect, InEffectEndTime);
+}
+
+TMap<float, float>& FDebuffGameplayEffectContext::GetDebuffEffectStackInfo()
+{
+	return DebuffEffectStackToEndTime;
+}
+
+float FDebuffGameplayEffectContext::GetMaxDebuffEffect(float CurrentTime, int32 EffectStackCount)
+{
+	CleanUpExpiredEffects(CurrentTime); // 清理过期的效果
+	TArray<float> ValidEffect;
+
+	// UE_LOG(LogAura, Warning, TEXT("造成点燃伤害 -->点燃堆栈->[%d] "), IgniteDamageToEndTime.Num());
+	// 收集有效的Effect
+	for (const auto& Pair : DebuffEffectStackToEndTime)
+	{
+		ValidEffect.Add(Pair.Value);
+	}
+
+	// 如果没有有效的伤害，返回 0
+	if (ValidEffect.Num() == 0)
+	{
+		return 0.f;
+	}
+
+	// 排序有效伤害
+	ValidEffect.Sort([](const float& A, const float& B)
+	{
+		return A > B; // 降序排序
+	});
+
+	// 计算总伤害，最多累加 IgniteStack 次
+	float TotalEffect = 0.f;
+	for (int32 i = 0; i < FMath::Min(EffectStackCount, ValidEffect.Num()); i++)
+	{
+		TotalEffect += ValidEffect[i]; // 累加最高的伤害
+	}
+
+	return TotalEffect; // 返回总伤害
 }

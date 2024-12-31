@@ -74,12 +74,14 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	GameplayTags.Attributes_Resistance_Lighting = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Lighting"), FString(""));
 	GameplayTags.Attributes_Resistance_Cold = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Cold"), FString(""));
 	GameplayTags.Attributes_Resistance_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Physical"), FString(""));
+	
 
 	//Debuff
 	GameplayTags.Debuff = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff"), FString("Debuff"));
 	GameplayTags.Debuff_Ignite = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Ignite"), FString("火焰伤害-燃烧"));
 	GameplayTags.Debuff_Arcane = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Arcane"), FString(""));
 	GameplayTags.Debuff_Stun = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Stun"), FString("闪电伤害-眩晕"));
+	GameplayTags.Debuff_Shock = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Shock"), FString("闪电伤害Debuff_感电"));
 	GameplayTags.Debuff_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Physical"), FString(""));
 
 	GameplayTags.Debuff_Chance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Chance"), FString(""));
@@ -87,7 +89,14 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	GameplayTags.Debuff_Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Damage"), FString(""));
 	GameplayTags.Debuff_Frequency = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Frequency"), FString(""));
 
+	//DebuffDamage
+	GameplayTags.Debuff_IncomingDamage_FireDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.IncomingDamage.FireDamage"), FString(""));
+	GameplayTags.Debuff_IncomingDamage_ColdDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.IncomingDamage.ColdDamage"), FString(""));
+	GameplayTags.Debuff_IncomingDamage_LightningDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.IncomingDamage.LightningDamage"), FString(""));
+
+	//对应Debuff，对应Debuff显示的图标
 	GameplayTags.DebuffToShowString.Add(GameplayTags.Debuff_Ignite, FText::FromString("Fire"));
+	GameplayTags.DebuffToShowString.Add(GameplayTags.Debuff_Shock, FText::FromString("Shock"));
 
 
 	//点燃相关
@@ -99,15 +108,15 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	GameplayTags.Debuff_IgniteData_IgniteColdDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.IgniteData.IgniteColdDamage"), FString("点燃冰冷伤害"));
 	GameplayTags.Debuff_IgniteData_IgniteLightningDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.IgniteData.IgniteLightningDamage"), FString("点燃闪电伤害"));
 
-	//点燃伤害和直击伤害的映射
-	GameplayTags.DamageTypesToIgniteDamageType.Add(GameplayTags.Damage_Fire, GameplayTags.Debuff_IgniteData_IgniteFireDamage);
-	GameplayTags.DamageTypesToIgniteDamageType.Add(GameplayTags.Damage_Cold, GameplayTags.Debuff_IgniteData_IgniteColdDamage);
-	GameplayTags.DamageTypesToIgniteDamageType.Add(GameplayTags.Damage_Lighting, GameplayTags.Debuff_IgniteData_IgniteLightningDamage);
+	//伤害和当前Debuff的伤害关联
+	GameplayTags.DamageTypesToDebuffDamageType.Add(GameplayTags.Damage_Fire, GameplayTags.Debuff_IncomingDamage_FireDamage);
+	GameplayTags.DamageTypesToDebuffDamageType.Add(GameplayTags.Damage_Cold, GameplayTags.Debuff_IncomingDamage_ColdDamage);
+	GameplayTags.DamageTypesToDebuffDamageType.Add(GameplayTags.Damage_Lighting, GameplayTags.Debuff_IncomingDamage_LightningDamage);
 
 
 	//伤害-Debuff映射
 	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Fire, GameplayTags.Debuff_Ignite);
-	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Lighting, GameplayTags.Debuff_Stun);
+	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Lighting, GameplayTags.Debuff_Shock);
 	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Arcane, GameplayTags.Debuff_Arcane);
 	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Physical, GameplayTags.Debuff_Physical);
 

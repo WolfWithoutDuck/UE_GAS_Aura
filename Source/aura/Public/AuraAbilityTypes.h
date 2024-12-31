@@ -45,6 +45,10 @@ struct FDamageEffectParams
 	//点燃周期
 	float IgnitePeriod = 1.f;
 
+	//感电持续时间
+	float ShockDuration = 2.f;
+
+
 	UPROPERTY(BlueprintReadWrite)
 	float AbilityLevel = 1.f;
 
@@ -235,6 +239,7 @@ protected:
 	UPROPERTY()
 	float IgnitePeriod = 1.f;
 
+	//点燃伤害Buff堆栈
 	UPROPERTY()
 	TMap<float, float> IgniteDamageToEndTime;
 
@@ -258,6 +263,96 @@ protected:
 
 template <>
 struct TStructOpsTypeTraits<FAuraGameplayEffectContext> : public TStructOpsTypeTraitsBase2<FAuraGameplayEffectContext>
+{
+	enum
+	{
+		WithNetSerializer = true,
+		WithCopy = true // Necessary so that TSharedPtr<FHitResult> Data is copied around
+	};
+};
+
+
+/**
+ *自定义的DebuffGE上下文
+ */
+USTRUCT(BlueprintType)
+struct FDebuffGameplayEffectContext : public FGameplayEffectContext
+{
+	GENERATED_BODY()
+
+public:
+	/** Returns the actual struct used for serialization, subclasses must override this! */
+	virtual UScriptStruct* GetScriptStruct() const
+	{
+		return StaticStruct();
+	}
+
+	/** Creates a copy of this context, used to duplicate for later modifications */
+	virtual FDebuffGameplayEffectContext* Duplicate() const
+	{
+		FDebuffGameplayEffectContext* NewContext = new FDebuffGameplayEffectContext();
+		*NewContext = *this;
+		if (GetHitResult())
+		{
+			// Does a deep copy of the hit result
+			NewContext->AddHitResult(*GetHitResult(), true);
+		}
+		return NewContext;
+	}
+
+	/** Custom serialization, subclasses must override this */
+	virtual bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
+
+
+	//初始覆盖所有Debuff数据
+	void InitDebuffEffectStack(const TMap<float, float>& DebuffEffectStack);
+	//根据传入的当前时间戳，清除所有过期的Debuff数据
+	void CleanUpExpiredEffects(float CurrentTime);
+	//传入DebuffEffect 和当前过期时间
+	void SetDebuffEffectStackInfo(float InDebuffEffect, float InEffectEndTime);
+	//获取当前的DebuffStack信息
+	TMap<float, float>& GetDebuffEffectStackInfo();
+
+	//通用设置Debuff信息
+	void SetIsSuccessfulDebuff(const bool bInIsSuccessfulDebuff) { bIsSuccessfulDebuff = bInIsSuccessfulDebuff; }
+	void SetDebuffEffect(const float InDebuffEffect) { DebuffEffect = InDebuffEffect; }
+	void SetDebuffDuration(const float InDebuffDuration) { DebuffDuration = InDebuffDuration; }
+
+	//通用获取Debuff信息
+	bool GetIsSuccessfulDebuff() const { return bIsSuccessfulDebuff; }
+	float GetDebuffEffect() const { return DebuffEffect; }
+	float GetDebuffDuration() const { return DebuffDuration; }
+	float GetMaxDebuffEffect(float CurrentTime, int32 EffectStackCount);
+
+protected:
+	/*
+	 *	Debuff堆栈，对应的数据以及结束时间，对应的数据可以是任何东西，比如
+	 *	点燃--[点燃伤害，本次点燃伤害结束时间],只获取伤害最高的进行生效，当有多个点燃存在，获取最高的几个点燃生效
+	 *	冰缓--[冰缓层数，本次冰缓层数结束时间]，只获取最高层数的冰缓生效
+	 *	感电--[感电层数，本次感电层数结束时间]，只获取最高层数的感电生效
+	 *	TODO 中毒
+	 *	TODO 流血
+	 *	
+	 *	所有Debuff使用通用的规则，多个层数同一时间可以同时存在，但是应用规则可能略有不同，不同Buff再根据数据，自行进行处理
+	 */
+	UPROPERTY()
+	TMap<float, float> DebuffEffectStackToEndTime;
+
+	UPROPERTY()
+	bool bIsSuccessfulDebuff = false;
+
+	UPROPERTY()
+	float DebuffEffect = 0.f;
+
+	UPROPERTY()
+	float DebuffDuration = 0.f;
+
+	UPROPERTY()
+	float DebuffPeriod = 1.f;
+};
+
+template <>
+struct TStructOpsTypeTraits<FDebuffGameplayEffectContext> : public TStructOpsTypeTraitsBase2<FDebuffGameplayEffectContext>
 {
 	enum
 	{
