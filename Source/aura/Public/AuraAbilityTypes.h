@@ -48,6 +48,14 @@ struct FDamageEffectParams
 	//感电持续时间
 	float ShockDuration = 2.f;
 
+	//感电几率
+	float ShockChance = 0.f;
+
+	UPROPERTY(BlueprintReadWrite)
+	FGameplayTag DamageSourceType = FGameplayTag();
+
+	UPROPERTY(BlueprintReadWrite)
+	FGameplayTag InstigatorDamageSourceType = FGameplayTag();
 
 	UPROPERTY(BlueprintReadWrite)
 	float AbilityLevel = 1.f;
@@ -143,6 +151,11 @@ public:
 	void SetRadialDamageOuterRadius(const float InRadialDamageOuterRadius) { RadialDamageOuterRadius = InRadialDamageOuterRadius; }
 	void SetRadialDamageOrigin(const FVector& InDamageOrigin) { RadialDamageOrigin = InDamageOrigin; }
 
+	void SetInstigatorDamageSourceType(const FGameplayTag& InDamageSourceType) { InstigatorDamageSourceType = MakeShared<FGameplayTag>(InDamageSourceType); }
+	FGameplayTag GetInstigatorDamageSourceType() const { return InstigatorDamageSourceType ? *InstigatorDamageSourceType : FGameplayTag(); }
+	void SetDamageSourceType(const FGameplayTag& InDamageSourceType) { DamageSourceType = MakeShared<FGameplayTag>(InDamageSourceType); }
+	FGameplayTag GetDamageSourceType() const { return DamageSourceType ? *DamageSourceType : FGameplayTag(); }
+
 	//点燃
 	void SetIsSuccessfulIgnite(const bool bInIsSuccessfulIgnite) { bIsSuccessfulIgnite = bInIsSuccessfulIgnite; }
 	void SetIgniteDamage(const float InIgniteDamage) { IgniteDamage = InIgniteDamage; }
@@ -158,6 +171,7 @@ public:
 	float GetShockEffect() const { return ShockEffect; }
 	float GetShockDuration() const { return ShockDuration; }
 
+	//
 
 	/** Returns the actual struct used for serialization, subclasses must override this! */
 	virtual UScriptStruct* GetScriptStruct() const
@@ -256,8 +270,12 @@ protected:
 	UPROPERTY()
 	float ShockDuration = 0.f;
 
-	UPROPERTY()
-	TMap<float, float> ShockEffectToEndTime;
+
+	//当前伤害源头类型
+	TSharedPtr<FGameplayTag> InstigatorDamageSourceType;
+
+	//当前伤害类型
+	TSharedPtr<FGameplayTag> DamageSourceType;
 };
 
 

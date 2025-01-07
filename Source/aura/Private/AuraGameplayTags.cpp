@@ -45,6 +45,9 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	GameplayTags.InputTag_Passive_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.Passive.1"), FString(""));
 	GameplayTags.InputTag_Passive_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.Passive.2"), FString(""));
 
+	//角色状态
+	GameplayTags.CharacterStatus_RecentlyEvasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CharacterStatus.RecentlyEvasion"), FString("近期闪避中"));
+
 
 	//伤害
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage"), FString(""));
@@ -54,6 +57,12 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	GameplayTags.Damage_Cold = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage.Cold"), FString("冰冷伤害"));
 	GameplayTags.Damage_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage.Physical"), FString("物理伤害"));
 
+	//伤害类型
+	GameplayTags.DamageSourcesType_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("DamageSourcesType.Attack"), FString(""));
+	GameplayTags.DamageSourcesType_Spell = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("DamageSourcesType.Spell"), FString(""));
+	GameplayTags.DamageSourcesType_Dot = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("DamageSourcesType.Dot"), FString(""));
+	GameplayTags.DamageSourcesType_Secondary = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("DamageSourcesType.Secondary"), FString(""));
+	GameplayTags.DamageSourcesType_None = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("DamageSourcesType.None"), FString(""));
 
 	//蒙太奇对应攻击方式骨骼点插槽，用于不同攻击方式获取攻击的骨骼点
 	GameplayTags.CombatSocket_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.Weapon"), FString(""));
@@ -70,11 +79,17 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 
 	//抗性
 	GameplayTags.Attributes_Resistance_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Fire"), FString(""));
-	GameplayTags.Attributes_Resistance_Arcane = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Arcane"), FString(""));
 	GameplayTags.Attributes_Resistance_Lighting = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Lighting"), FString(""));
 	GameplayTags.Attributes_Resistance_Cold = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Cold"), FString(""));
+
+	//抗性最大抗性
+	GameplayTags.Attributes_Resistance_MaxFire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.MaxFire"), FString(""));
+	GameplayTags.Attributes_Resistance_MaxLighting = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.MaxLighting"), FString(""));
+	GameplayTags.Attributes_Resistance_MaxCold = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.MaxCold"), FString(""));
+
+	GameplayTags.Attributes_Resistance_Arcane = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Arcane"), FString(""));
 	GameplayTags.Attributes_Resistance_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Physical"), FString(""));
-	
+
 
 	//Debuff
 	GameplayTags.Debuff = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff"), FString("Debuff"));
@@ -108,6 +123,11 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	GameplayTags.Debuff_IgniteData_IgniteColdDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.IgniteData.IgniteColdDamage"), FString("点燃冰冷伤害"));
 	GameplayTags.Debuff_IgniteData_IgniteLightningDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.IgniteData.IgniteLightningDamage"), FString("点燃闪电伤害"));
 
+
+	//感电相关
+	GameplayTags.Debuff_ShockData_ShockChance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.ShockData.ShockChance"), FString("感电几率"));
+	GameplayTags.Debuff_ShockData_ShockDuration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.ShockData.ShockDuration"), FString("感电持续时间"));
+
 	//伤害和当前Debuff的伤害关联
 	GameplayTags.DamageTypesToDebuffDamageType.Add(GameplayTags.Damage_Fire, GameplayTags.Debuff_IncomingDamage_FireDamage);
 	GameplayTags.DamageTypesToDebuffDamageType.Add(GameplayTags.Damage_Cold, GameplayTags.Debuff_IncomingDamage_ColdDamage);
@@ -124,8 +144,14 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Fire, GameplayTags.Attributes_Resistance_Fire);
 	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Lighting, GameplayTags.Attributes_Resistance_Lighting);
 	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Cold, GameplayTags.Attributes_Resistance_Cold);
-	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Arcane, GameplayTags.Attributes_Resistance_Arcane);
-	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Physical, GameplayTags.Attributes_Resistance_Physical);
+
+	//伤害-最大抗性映射
+	GameplayTags.DamageTypesToMaxResistances.Add(GameplayTags.Damage_Fire, GameplayTags.Attributes_Resistance_MaxFire);
+	GameplayTags.DamageTypesToMaxResistances.Add(GameplayTags.Damage_Lighting, GameplayTags.Attributes_Resistance_MaxLighting);
+	GameplayTags.DamageTypesToMaxResistances.Add(GameplayTags.Damage_Cold, GameplayTags.Attributes_Resistance_MaxCold);
+
+	// GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Arcane, GameplayTags.Attributes_Resistance_Arcane);
+	// GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Physical, GameplayTags.Attributes_Resistance_Physical);
 
 	//能力
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects.HitReact"), FString(""));
@@ -146,8 +172,7 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	GameplayTags.Abilities_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.HitReact"), FString(""));
 
 	//被动技能
-	GameplayTags.Abilities_Passive_HaloOfProtection = UGameplayTagsManager::Get().
-		AddNativeGameplayTag(FName("Abilities.Passive.HaloOfProtection"), FString(""));
+	GameplayTags.Abilities_Passive_HaloOfProtection = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Passive.HaloOfProtection"), FString(""));
 	GameplayTags.Abilities_Passive_LifeSiphon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Passive.LifeSiphon"), FString(""));
 	GameplayTags.Abilities_Passive_ManaSiphon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Passive.ManaSiphon"), FString(""));
 

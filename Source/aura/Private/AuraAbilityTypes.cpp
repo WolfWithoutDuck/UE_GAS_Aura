@@ -400,7 +400,7 @@ void FDebuffGameplayEffectContext::CleanUpExpiredEffects(const float CurrentTime
 	for (auto It = DebuffEffectStackToEndTime.CreateIterator(); It; ++It)
 	{
 		// 检查结束时间
-		if (It.Key() < CurrentTime)
+		if (It.Value() < CurrentTime)
 		{
 			// 移除过期的点燃伤害
 			It.RemoveCurrent();
@@ -410,6 +410,7 @@ void FDebuffGameplayEffectContext::CleanUpExpiredEffects(const float CurrentTime
 
 void FDebuffGameplayEffectContext::SetDebuffEffectStackInfo(float InDebuffEffect, float InEffectEndTime)
 {
+	// UE_LOG(LogAura, Warning, TEXT("设置Daebuff效果 -->Debuff效果->[%f]  结束时间->[%f] "), InDebuffEffect, InEffectEndTime);
 	DebuffEffectStackToEndTime.Add(InDebuffEffect, InEffectEndTime);
 }
 
@@ -427,7 +428,7 @@ float FDebuffGameplayEffectContext::GetMaxDebuffEffect(float CurrentTime, int32 
 	// 收集有效的Effect
 	for (const auto& Pair : DebuffEffectStackToEndTime)
 	{
-		ValidEffect.Add(Pair.Value);
+		ValidEffect.Add(Pair.Key);
 	}
 
 	// 如果没有有效的伤害，返回 0
