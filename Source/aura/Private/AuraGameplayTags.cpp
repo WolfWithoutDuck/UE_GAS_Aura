@@ -98,6 +98,8 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	GameplayTags.Debuff_Stun = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Stun"), FString("闪电伤害-眩晕"));
 	GameplayTags.Debuff_Shock = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Shock"), FString("闪电伤害Debuff_感电"));
 	GameplayTags.Debuff_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Physical"), FString(""));
+	GameplayTags.Debuff_Frozen = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Frozen"), FString("冰冷伤害-冻结"));
+	GameplayTags.Debuff_Chill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Chill"), FString("冰冷伤害-冰缓"));
 
 	GameplayTags.Debuff_Chance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Chance"), FString(""));
 	GameplayTags.Debuff_Duration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Duration"), FString(""));
@@ -112,6 +114,8 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	//对应Debuff，对应Debuff显示的图标
 	GameplayTags.DebuffToShowString.Add(GameplayTags.Debuff_Ignite, FText::FromString("Fire"));
 	GameplayTags.DebuffToShowString.Add(GameplayTags.Debuff_Shock, FText::FromString("Shock"));
+	GameplayTags.DebuffToShowString.Add(GameplayTags.Debuff_Chill, FText::FromString("Chill"));
+	GameplayTags.DebuffToShowString.Add(GameplayTags.Debuff_Frozen, FText::FromString("Fro"));
 
 
 	//点燃相关
@@ -127,6 +131,9 @@ void FAuraGameplayTags::InitializedNativeGameplayTags()
 	//感电相关
 	GameplayTags.Debuff_ShockData_ShockChance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.ShockData.ShockChance"), FString("感电几率"));
 	GameplayTags.Debuff_ShockData_ShockDuration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.ShockData.ShockDuration"), FString("感电持续时间"));
+
+	//冰冻相关
+	GameplayTags.Debuff_FrozenData_FrozenChance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.FrozenData.FrozenChance"), FString("冰冻几率"));
 
 	//伤害和当前Debuff的伤害关联
 	GameplayTags.DamageTypesToDebuffDamageType.Add(GameplayTags.Damage_Fire, GameplayTags.Debuff_IncomingDamage_FireDamage);

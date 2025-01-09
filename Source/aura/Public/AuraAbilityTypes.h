@@ -51,6 +51,18 @@ struct FDamageEffectParams
 	//感电几率
 	float ShockChance = 0.f;
 
+	//冻结几率
+	float FreezeChance = 0.f;
+
+	//冰缓持续时间增加（不用）
+	float ChillDurationInc = 0.f;
+
+	//冰霜异常状态效果持续时间提高/减少（不用）
+	float ColdAlimentDurationInc = 0.f;
+
+	//冰霜异常状态效果提高/减少（不用）
+	float ColdAlimentEffectInc = 0.f;
+
 	UPROPERTY(BlueprintReadWrite)
 	FGameplayTag DamageSourceType = FGameplayTag();
 
@@ -171,7 +183,14 @@ public:
 	float GetShockEffect() const { return ShockEffect; }
 	float GetShockDuration() const { return ShockDuration; }
 
-	//
+	//冰缓/冻结
+	void SetChillEffect(const float InChillEffect) { ChillEffect = InChillEffect; }
+	void SetChillDuration(const float InChillDuration) { ChillDuration = InChillDuration; }
+	void SetFrozenDuration(const float InFrozenDuration) { FrozenDuration = InFrozenDuration; }
+
+	float GetChillEffect() const { return ChillEffect; }
+	float GetChillDuration() const { return ChillDuration; }
+	float GetFrozenDuration() const { return FrozenDuration; }
 
 	/** Returns the actual struct used for serialization, subclasses must override this! */
 	virtual UScriptStruct* GetScriptStruct() const
@@ -270,6 +289,26 @@ protected:
 	UPROPERTY()
 	float ShockDuration = 0.f;
 
+	//感电异常状态提高/减少
+	UPROPERTY()
+	float ShockAlimentEffectInc = 0.f;
+
+	//冰缓/冻结
+	//冻结几率
+	UPROPERTY()
+	float FreezeChance = 0.f;
+
+	//冰缓持续时间
+	UPROPERTY()
+	float ChillDuration = 0.f;
+
+	//冰缓层数
+	UPROPERTY()
+	float ChillEffect = 0.f;
+
+	//冻结时间
+	UPROPERTY()
+	float FrozenDuration = 0.f;
 
 	//当前伤害源头类型
 	TSharedPtr<FGameplayTag> InstigatorDamageSourceType;
